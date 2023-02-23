@@ -63,8 +63,18 @@ store, as an alternative to using RabbitMQ for consuming events between services
 }
 ```
 
-# How do I consume events from the stream?
-- [x] [Code an example of doing so](/examples/consuming_events_from_stream.go)
+# Questions raised
+1. How do I consume events from the stream?
+   - [x] [Code an example of doing so](/examples/consuming_events_from_stream.go)
+2. How do I consume from multiple event streams?
+   - Example coded above
+3. How do I implement the spec with a server?
+   - Example server implemented in sidecar and can be used for publishing
+4. Should this form of polling be exposed to clients instead of webhooks?
+   - Different use-cases potentially - webhooks would be more useful for especially timely info
+   - Potential downside on webhooks: what happens if the responding server fails?
+     - A deadletter queue for a specific client's messages that have failed?
+5. In practice, how would this look?
 
 # Investigation links
 - YOW! 2011 Jim Webber - Domain-Driven Design for RESTful Systems: https://www.youtube.com/watch?v=aQVSzMV8DWc
