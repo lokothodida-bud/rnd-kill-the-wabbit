@@ -1,4 +1,6 @@
 # R&D Q1 2023: "Kill the Wabbit"
+
+![Shhh...be vewwy vewwy quiet...](/images/elmer-fudd.jpg)
 R&amp;D Q1 2023 Project: provide an API spec (and possible integration sidecar and example) for a polling-based event
 store, as an alternative to using RabbitMQ for consuming events between services
 
@@ -9,6 +11,7 @@ store, as an alternative to using RabbitMQ for consuming events between services
 - Oktane17: Designing Beautiful REST + JSON APIs - https://www.youtube.com/watch?v=MiOSzpfP1Ww
 
 # RabbitMQ
+![](/images/services-with-rabbit.png)
 ## Benefits
 
 ## Problems
@@ -18,6 +21,7 @@ store, as an alternative to using RabbitMQ for consuming events between services
     and deadletter queues become needed to manage it
 
 # Polling
+![](/images/services-without-rabbit.png)
 1. Record the latest event ID you saw
 2. Hit the endpoint that tells you the latest event, and continue to follow
    the `next` link in the linked-list stream until you hit the latest event ID
