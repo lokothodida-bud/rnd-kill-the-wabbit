@@ -15,7 +15,8 @@ import (
 // This example consumes events periodically from a particular stream
 // and simply prints the output in order to the log
 func main() {
-	eventServerURL := flag.String("server-url", "http://localhost:8080/events", "origin server to poll for events")
+	eventServerURL := flag.String("server-url", "http://localhost:8080", "origin server to poll for events")
+	eventServerWellKnownPath := flag.String("wellknown-path", "/events", "well known path for latest event, e.g. /events")
 	tickerTimeString := flag.String("ticker", "3s", "time.Duration string on time between ticks, e.g. 5s")
 	lastEventIDFlag := flag.String("last-event-id", "", "last ID of the event stream to start from")
 
@@ -32,7 +33,7 @@ func main() {
 	lastEventID := *lastEventIDFlag
 
 	for range time.Tick(duration) {
-		events, err := findLatestEvents(*eventServerURL, lastEventID)
+		events, err := findLatestEvents(*eventServerURL, *eventServerWellKnownPath, lastEventID)
 
 		if err != nil {
 			log.Panic(err)
@@ -48,8 +49,12 @@ func main() {
 	}
 }
 
-func findLatestEvents(wellknownURL string, latestEventID string) ([]domain.Event, error) {
-	resp, err := queryForEvent(wellknownURL)
+func findLatestEvents(baseURL string, wellknownURL string, latestEventID string) ([]domain.Event, error) {
+	resp, err := queryForEvent(baseURL + wellknownURL)
+
+	if errors.Is(err, ErrEventNotFound) {
+		return []domain.Event{}, nil
+	}
 
 	if err != nil {
 		return nil, err
@@ -64,7 +69,7 @@ func findLatestEvents(wellknownURL string, latestEventID string) ([]domain.Event
 	currentEventID := resp.Data.EventID
 
 	for currentEventID != latestEventID && resp.Metadata["next"].Href != "" {
-		resp, err = queryForEvent(resp.Metadata["next"].Href)
+		resp, err = queryForEvent(baseURL + resp.Metadata["next"].Href)
 
 		if err != nil {
 			return nil, err
@@ -92,7 +97,7 @@ func queryForEvent(eventURL string) (*domain.Response, error) {
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusFound {
+	if resp.StatusCode == http.StatusNotFound {
 		return nil, ErrEventNotFound
 	}
 
@@ -110,7 +115,7 @@ func queryForEvent(eventURL string) (*domain.Response, error) {
 }
 
 func printEvent(event domain.Event) {
-	fmt.Printf("[%s] [%s] %s\n", event.OccurredAt, event.EventID, event.EventName)
+	fmt.Printf("[%s] [%s] %s %s\n", event.OccurredAt, event.EventID, event.EventName, string(event.Payload))
 }
 
 var ErrEventNotFound = errors.New("event not found")

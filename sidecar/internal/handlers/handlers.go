@@ -7,6 +7,7 @@ import (
 	"github.com/thisisbud/backend-events-sidecar/internal/domain"
 	"github.com/thisisbud/backend-events-sidecar/internal/storage"
 	"net/http"
+	"time"
 )
 
 func Wellknown(w http.ResponseWriter, r *http.Request) {
@@ -66,6 +67,10 @@ func PublishEvent(publish storage.PublishEvent, newID func() string) http.Handle
 
 		if body.EventID == "" {
 			body.EventID = newID()
+		}
+
+		if body.OccurredAt.IsZero() {
+			body.OccurredAt = time.Now().UTC()
 		}
 
 		if err := publish(r.Context(), body); err != nil {
