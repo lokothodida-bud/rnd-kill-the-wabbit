@@ -28,6 +28,7 @@ func GetLatestEvent(getLatestEvent storage.GetLatestEvent) http.HandlerFunc {
 			return
 		}
 
+		w.Header().Set("Content-Type", domain.ContentType)
 		_ = json.NewEncoder(w).Encode(domain.Response{
 			Data:     *event,
 			Metadata: refs,
@@ -49,6 +50,7 @@ func GetEvent(getEventByID storage.GetEvent) http.HandlerFunc {
 			return
 		}
 
+		w.Header().Set("Content-Type", domain.ContentType)
 		_ = json.NewEncoder(w).Encode(domain.Response{
 			Data:     *event,
 			Metadata: refs,
