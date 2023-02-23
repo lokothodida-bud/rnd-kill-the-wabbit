@@ -1,0 +1,8 @@
+[
+  {
+    "base_url": "http://localhost:8080",
+    "well_known_path": "/events",
+    "ticker": "5s",
+    "last_event_id": ""
+  }
+]

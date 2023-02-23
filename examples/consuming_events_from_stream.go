@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"github.com/lokothodida/rnd-kill-the-wabbit/internal/domain"
+	"golang.org/x/sync/errgroup"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 	"time"
 )
@@ -15,28 +18,39 @@ import (
 // This example consumes events periodically from a particular stream
 // and simply prints the output in order to the log
 func main() {
-	eventServerURL := flag.String("server-url", "http://localhost:8080", "origin server to poll for events")
-	eventServerWellKnownPath := flag.String("wellknown-path", "/events", "well known path for latest event, e.g. /events")
-	tickerTimeString := flag.String("ticker", "3s", "time.Duration string on time between ticks, e.g. 5s")
-	lastEventIDFlag := flag.String("last-event-id", "", "last ID of the event stream to start from")
+	configFilename := flag.String("config-file", "./stream_config.dist.json", "JSON config file for consumers")
 
 	flag.Parse()
 
-	duration, err := time.ParseDuration(*tickerTimeString)
+	conf, err := loadConfig(*configFilename)
 
 	if err != nil {
 		log.Panic(err)
 	}
 
-	log.Printf("polling event server [%s]\n", *eventServerURL)
+	errs, _ := errgroup.WithContext(context.Background())
 
-	lastEventID := *lastEventIDFlag
+	for _, con := range conf {
+		errs.Go(func(conf config) func() error {
+			return func() error {
+				return consumeEvents(conf)
+			}
+		}(con))
+	}
 
-	for range time.Tick(duration) {
-		events, err := findLatestEvents(*eventServerURL, *eventServerWellKnownPath, lastEventID)
+	log.Panic(errs.Wait())
+}
+
+func consumeEvents(conf config) error {
+	lastEventID := conf.LastEventID
+
+	log.Printf("polling event server [%s]\n", conf.BaseURL)
+
+	for range time.Tick(time.Duration(conf.Ticker)) {
+		events, err := findLatestEvents(conf.BaseURL, conf.WellKnownPath, lastEventID)
 
 		if err != nil {
-			log.Panic(err)
+			return err
 		}
 
 		for i, event := range events {
@@ -47,6 +61,8 @@ func main() {
 			}
 		}
 	}
+
+	return nil
 }
 
 func findLatestEvents(baseURL string, wellknownURL string, latestEventID string) ([]domain.Event, error) {
@@ -115,7 +131,49 @@ func queryForEvent(eventURL string) (*domain.Response, error) {
 }
 
 func printEvent(event domain.Event) {
-	fmt.Printf("[%s] [%s] %s %s\n", event.OccurredAt, event.EventID, event.EventName, string(event.Payload))
+	fmt.Printf("[%s] [%s] %s %s\n", event.OccurredAt.Format(time.RFC3339), event.EventID, event.EventName, string(event.Payload))
 }
 
 var ErrEventNotFound = errors.New("event not found")
+
+type config struct {
+	BaseURL       string   `json:"base_url"`
+	WellKnownPath string   `json:"well_known_path"`
+	Ticker        Duration `json:"ticker"`
+	LastEventID   string   `json:"last_event_id"`
+}
+
+func loadConfig(filename string) ([]config, error) {
+	blob, err := os.ReadFile(filename)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var results []config
+
+	if err := json.Unmarshal(blob, &results); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+type Duration time.Duration
+
+func (d *Duration) UnmarshalJSON(bytes []byte) error {
+	var str string
+
+	if err := json.Unmarshal(bytes, &str); err != nil {
+		return err
+	}
+
+	dur, err := time.ParseDuration(str)
+
+	if err != nil {
+		return err
+	}
+
+	*d = Duration(dur)
+	return nil
+}

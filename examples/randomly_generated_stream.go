@@ -91,7 +91,7 @@ func generateEvents(maxEvents int) []domain.Event {
 		events = append(events, domain.Event{
 			EventID:    uuid.NewString(),
 			EventName:  "some_fake_event",
-			OccurredAt: time.Now().Add(time.Minute * time.Duration(-i)),
+			OccurredAt: time.Now(),
 		})
 	}
 
