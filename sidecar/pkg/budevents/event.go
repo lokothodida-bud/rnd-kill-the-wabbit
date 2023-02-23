@@ -1,4 +1,4 @@
-package domain
+package budevents
 
 import (
 	"encoding/json"

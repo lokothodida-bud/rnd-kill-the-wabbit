@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-chi/chi/v5"
-	"github.com/thisisbud/backend-events-sidecar/internal/domain"
 	"github.com/thisisbud/backend-events-sidecar/internal/storage"
+	"github.com/thisisbud/backend-events-sidecar/pkg/budevents"
 	"net/http"
 	"time"
 )
@@ -28,8 +28,8 @@ func GetLatestEvent(getLatestEvent storage.GetLatestEvent) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Set("Content-Type", domain.ContentType)
-		_ = json.NewEncoder(w).Encode(domain.Response{
+		w.Header().Set("Content-Type", budevents.ContentType)
+		_ = json.NewEncoder(w).Encode(budevents.Response{
 			Data:     *event,
 			Metadata: refs,
 		})
@@ -50,8 +50,8 @@ func GetEvent(getEventByID storage.GetEvent) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Set("Content-Type", domain.ContentType)
-		_ = json.NewEncoder(w).Encode(domain.Response{
+		w.Header().Set("Content-Type", budevents.ContentType)
+		_ = json.NewEncoder(w).Encode(budevents.Response{
 			Data:     *event,
 			Metadata: refs,
 		})
@@ -60,7 +60,7 @@ func GetEvent(getEventByID storage.GetEvent) http.HandlerFunc {
 
 func PublishEvent(publish storage.PublishEvent, newID func() string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var body domain.Event
+		var body budevents.Event
 
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			w.WriteHeader(http.StatusBadRequest)

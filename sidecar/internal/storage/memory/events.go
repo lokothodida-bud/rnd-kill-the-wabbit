@@ -2,27 +2,27 @@ package memory
 
 import (
 	"context"
-	"github.com/thisisbud/backend-events-sidecar/internal/domain"
 	"github.com/thisisbud/backend-events-sidecar/internal/storage"
+	"github.com/thisisbud/backend-events-sidecar/pkg/budevents"
 	"net/http"
 	"sync"
 )
 
 type eventRepository struct {
 	mu     *sync.Mutex
-	events []domain.Event
+	events []budevents.Event
 }
 
 func NewEventRepository() *eventRepository {
 	return &eventRepository{
 		mu:     new(sync.Mutex),
-		events: []domain.Event{},
+		events: []budevents.Event{},
 	}
 }
 
-func (repo *eventRepository) Publish(ctx context.Context, event domain.Event) error {
+func (repo *eventRepository) Publish(ctx context.Context, event budevents.Event) error {
 	repo.mu.Lock()
-	repo.events = append([]domain.Event{event}, repo.events...)
+	repo.events = append([]budevents.Event{event}, repo.events...)
 	repo.mu.Unlock()
 
 	return nil
@@ -30,7 +30,7 @@ func (repo *eventRepository) Publish(ctx context.Context, event domain.Event) er
 
 func (repo *eventRepository) GetLatestEvent(
 	ctx context.Context,
-) (*domain.Event, map[string]domain.Reference, error) {
+) (*budevents.Event, map[string]budevents.Reference, error) {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
@@ -42,7 +42,7 @@ func (repo *eventRepository) GetLatestEvent(
 		return &repo.events[0], nil, nil
 	}
 
-	return &repo.events[0], map[string]domain.Reference{
+	return &repo.events[0], map[string]budevents.Reference{
 		"next": {
 			Href: "/v1/events/" + repo.events[1].EventID,
 			Type: http.MethodGet,
@@ -53,16 +53,16 @@ func (repo *eventRepository) GetLatestEvent(
 func (repo *eventRepository) GetEvent(
 	ctx context.Context,
 	eventID string,
-) (*domain.Event, map[string]domain.Reference, error) {
+) (*budevents.Event, map[string]budevents.Reference, error) {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
-	refs := map[string]domain.Reference{}
+	refs := map[string]budevents.Reference{}
 
 	for i, e := range repo.events {
 		if e.EventID == eventID {
 			if i < len(repo.events)-1 {
-				refs["next"] = domain.Reference{
+				refs["next"] = budevents.Reference{
 					Href: "/v1/events/" + repo.events[i+1].EventID,
 					Type: http.MethodGet,
 				}
