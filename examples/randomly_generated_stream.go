@@ -12,25 +12,42 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 )
 
 func main() {
 	port := flag.String("port", "8080", "http port for service")
-	maxEvents := flag.Uint("max-events", 10, "maximum number of events to generate")
+	maxEventsFlag := flag.Uint("max-events", 10, "maximum number of events to generate")
+	newEventsIntervalStr := flag.String("new-events-interval", "0s", "interval to randomly generate new events at")
+
 	flag.Parse()
+
+	newEventsInterval, err := time.ParseDuration(*newEventsIntervalStr)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	maxEvents := int(*maxEventsFlag)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	events := generateEvents(int(*maxEvents))
+	events := generateEvents(maxEvents)
 	baseURL := "http://localhost:" + *port
+	var mu sync.Mutex
 
 	r.Get("/events", func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
 		renderEvents(w, events, baseURL)
+		mu.Unlock()
 	})
 
 	r.Get("/events/{event_id}", func(w http.ResponseWriter, r *http.Request) {
 		eventID := chi.URLParam(r, "event_id")
+		mu.Lock()
 		eventAndNext, err := findEvent(eventID, events)
+		mu.Unlock()
 
 		if err != nil {
 			w.Header().Set("Content-Type", domain.ContentType)
@@ -46,6 +63,20 @@ func main() {
 
 		renderEvents(w, eventAndNext, baseURL)
 	})
+
+	go func() {
+		if newEventsInterval == 0 {
+			return
+		}
+
+		for range time.Tick(newEventsInterval) {
+			mu.Lock()
+			newEvents := generateEvents(maxEvents)
+			log.Printf("generated %d new events", len(newEvents))
+			events = append(newEvents, events...)
+			mu.Unlock()
+		}
+	}()
 
 	log.Printf("%d events generated", len(events))
 	log.Printf("running server on port %s\n", *port)
