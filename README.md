@@ -6,6 +6,7 @@ store, as an alternative to using RabbitMQ for consuming events between services
 - YOW! 2011 Jim Webber - Domain-Driven Design for RESTful Systems: https://www.youtube.com/watch?v=aQVSzMV8DWc
 - https://sookocheff.com/post/api/on-choosing-a-hypermedia-format/
 - https://devblast.com/r/master-ruby-web-apis/exploring-more-hypermedia-formats
+- Oktane17: Designing Beautiful REST + JSON APIs - https://www.youtube.com/watch?v=MiOSzpfP1Ww
 
 # RabbitMQ
 ## Benefits
@@ -54,7 +55,7 @@ store, as an alternative to using RabbitMQ for consuming events between services
   "metadata": {
     "latest": {
       "href": "/events",
-      type: "GET"
+      "type": "GET"
     },
     "next": {
       "href": "/events/ebb2ae28-10be-4f7a-bac4-796e28e25d85",
@@ -65,4 +66,4 @@ store, as an alternative to using RabbitMQ for consuming events between services
 ```
 
 # How do I consume events from the stream?
-- Code an example of doing so
+- [x] [Code an example of doing so](/examples/consuming_events_from_stream.go)
