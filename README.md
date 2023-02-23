@@ -24,7 +24,6 @@ store, as an alternative to using RabbitMQ for consuming events between services
 # Intended design
 - Event stream should have a linked-list structure that is easy to navigate, but
   also benefit from cacheability (i.e. shouldn't be changing too frequently)
-- 
 
 # Specification
 - Schemas
@@ -75,6 +74,11 @@ store, as an alternative to using RabbitMQ for consuming events between services
    - Potential downside on webhooks: what happens if the responding server fails?
      - A deadletter queue for a specific client's messages that have failed?
 5. In practice, how would this look?
+
+# Massive benefit discovered
+It is easy to build up "view model" joiner services to cache information that joins
+across service boundaries - makes for microservices that have very little infrastructure
+to care about, and which store a small subset of information
 
 # Investigation links
 - YOW! 2011 Jim Webber - Domain-Driven Design for RESTful Systems: https://www.youtube.com/watch?v=aQVSzMV8DWc

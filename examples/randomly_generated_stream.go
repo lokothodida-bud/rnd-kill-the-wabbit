@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
-	"github.com/lokothodida/rnd-kill-the-wabbit/internal/domain"
+	"github.com/thisisbud/backend-events-sidecar/pkg/budevents"
 	"log"
 	"math/rand"
 	"net/http"
@@ -50,10 +50,10 @@ func main() {
 		mu.Unlock()
 
 		if err != nil {
-			w.Header().Set("Content-Type", domain.ContentType)
+			w.Header().Set("Content-Type", budevents.ContentType)
 			w.WriteHeader(http.StatusNotFound)
-			_ = json.NewEncoder(w).Encode(domain.Response{
-				Metadata: map[string]domain.Reference{
+			_ = json.NewEncoder(w).Encode(budevents.Response{
+				Metadata: map[string]budevents.Reference{
 					"latest": latestEventReference(),
 				},
 			})
@@ -83,12 +83,12 @@ func main() {
 	log.Panic(http.ListenAndServe(fmt.Sprintf(":%s", *port), r))
 }
 
-func generateEvents(maxEvents int) []domain.Event {
-	var events []domain.Event
+func generateEvents(maxEvents int) []budevents.Event {
+	var events []budevents.Event
 	rand.Seed(time.Now().Unix())
 
 	for i := 0; i < rand.Intn(maxEvents); i++ {
-		events = append(events, domain.Event{
+		events = append(events, budevents.Event{
 			EventID:    uuid.NewString(),
 			EventName:  "some_fake_event",
 			OccurredAt: time.Now(),
@@ -98,8 +98,8 @@ func generateEvents(maxEvents int) []domain.Event {
 	return events
 }
 
-func findEvent(eventID string, events []domain.Event) ([]domain.Event, error) {
-	var ret []domain.Event
+func findEvent(eventID string, events []budevents.Event) ([]budevents.Event, error) {
+	var ret []budevents.Event
 	for i, e := range events {
 		if e.EventID == eventID {
 			ret = append(ret, e)
@@ -115,10 +115,10 @@ func findEvent(eventID string, events []domain.Event) ([]domain.Event, error) {
 	return nil, errors.New("event not found")
 }
 
-func renderEvents(w http.ResponseWriter, events []domain.Event, baseURL string) {
-	w.Header().Set("Content-Type", domain.ContentType)
-	resp := domain.Response{
-		Metadata: map[string]domain.Reference{
+func renderEvents(w http.ResponseWriter, events []budevents.Event, baseURL string) {
+	w.Header().Set("Content-Type", budevents.ContentType)
+	resp := budevents.Response{
+		Metadata: map[string]budevents.Reference{
 			"latest": latestEventReference(),
 		},
 	}
@@ -128,7 +128,7 @@ func renderEvents(w http.ResponseWriter, events []domain.Event, baseURL string) 
 	}
 
 	if len(events) > 1 {
-		resp.Metadata["next"] = domain.Reference{
+		resp.Metadata["next"] = budevents.Reference{
 			Href: fmt.Sprintf("/events/%s", events[1].EventID),
 			Type: http.MethodGet,
 		}
@@ -137,8 +137,8 @@ func renderEvents(w http.ResponseWriter, events []domain.Event, baseURL string) 
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
-func latestEventReference() domain.Reference {
-	return domain.Reference{
+func latestEventReference() budevents.Reference {
+	return budevents.Reference{
 		Href: "/events",
 		Type: http.MethodGet,
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	_ "github.com/joho/godotenv/autoload"
@@ -13,6 +14,9 @@ import (
 
 func main() {
 	repo := memory.NewEventRepository()
+	port := flag.String("port", os.Getenv("HTTP_PORT"), "HTTP port to run on")
+
+	flag.Parse()
 
 	r := chi.NewRouter()
 	r.Get("/", handlers.Wellknown)
@@ -20,7 +24,6 @@ func main() {
 	r.Get("/v1/events/{event_id}", handlers.GetEvent(repo.GetEvent))
 	r.Post("/v1/events", handlers.PublishEvent(repo.Publish, uuid.NewString))
 
-	port := os.Getenv("HTTP_PORT")
-	log.Printf("running on port %s\n", port)
-	log.Panic(http.ListenAndServe(":"+port, r))
+	log.Printf("running on port %s\n", *port)
+	log.Panic(http.ListenAndServe(":"+*port, r))
 }

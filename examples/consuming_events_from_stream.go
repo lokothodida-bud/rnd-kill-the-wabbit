@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-// This example consumes events periodically from a particular stream
-// and simply prints the output in order to the log
 func main() {
 	configFilename := flag.String("config-file", "./stream_config.dist.json", "JSON config file for consumers")
 
