@@ -22,9 +22,26 @@ store, as an alternative to using RabbitMQ for consuming events between services
    the `next` link in the linked-list stream until you hit the latest event ID
 3. Process the events you've seen in the list
 
+# Intended design
+- Event stream should have a linked-list structure that is easy to navigate, but
+  also benefit from cacheability (i.e. shouldn't be changing too frequently)
+- 
+
+# Specification
+- Schemas
+  - `application/vnd.bud.events+json`
+- Hypermedia controls
+- Link Relations
+  - `latest`
+  - `next`
+- Processing model
+  - Atom-like
+
+# Example
 ```json5
 // Content-Type: application/vnd.bud.events+json
 {
+  "schema": "https://my-service-schema.json", // explains the payloads expected under data.payload
   "data": {
     "event_id": "9d536fb6-638e-4dcb-a2b7-ccef37949765",
     "event_name": "loan_application_originated",
@@ -35,6 +52,10 @@ store, as an alternative to using RabbitMQ for consuming events between services
     },
   },
   "metadata": {
+    "latest": {
+      "href": "/events",
+      type: "GET"
+    },
     "next": {
       "href": "/events/ebb2ae28-10be-4f7a-bac4-796e28e25d85",
       "type": "GET"
@@ -42,3 +63,6 @@ store, as an alternative to using RabbitMQ for consuming events between services
   }
 }
 ```
+
+# How do I consume events from the stream?
+- Code an example of doing so

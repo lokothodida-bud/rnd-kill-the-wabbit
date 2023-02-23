@@ -35,7 +35,11 @@ func main() {
 		if err != nil {
 			w.Header().Set("Content-Type", domain.ContentType)
 			w.WriteHeader(http.StatusNotFound)
-			_ = json.NewEncoder(w).Encode(domain.Response{})
+			_ = json.NewEncoder(w).Encode(domain.Response{
+				Metadata: map[string]domain.Reference{
+					"latest": latestEventReference(baseURL),
+				},
+			})
 
 			return
 		}
@@ -82,20 +86,29 @@ func findEvent(eventID string, events []domain.Event) ([]domain.Event, error) {
 
 func renderEvents(w http.ResponseWriter, events []domain.Event, baseURL string) {
 	w.Header().Set("Content-Type", domain.ContentType)
-	resp := domain.Response{}
+	resp := domain.Response{
+		Metadata: map[string]domain.Reference{
+			"latest": latestEventReference(baseURL),
+		},
+	}
 
 	if len(events) > 0 {
 		resp.Data = events[0]
 	}
 
 	if len(events) > 1 {
-		resp.Metadata = map[string]domain.Reference{
-			"next": {
-				Href: fmt.Sprintf("%s/events/%s", baseURL, events[1].EventID),
-				Type: http.MethodGet,
-			},
+		resp.Metadata["next"] = domain.Reference{
+			Href: fmt.Sprintf("%s/events/%s", baseURL, events[1].EventID),
+			Type: http.MethodGet,
 		}
 	}
 
 	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func latestEventReference(baseURL string) domain.Reference {
+	return domain.Reference{
+		Href: fmt.Sprintf("%s/events", baseURL),
+		Type: http.MethodGet,
+	}
 }
