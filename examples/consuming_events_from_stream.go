@@ -24,13 +24,15 @@ func main() {
 		log.Panic(err)
 	}
 
-	consumer := budevents.NewConsumer(printEvent, conf...)
+	consumer := budevents.NewConsumer(printEvents, conf...)
 
 	log.Panic(consumer.Consume(context.Background()))
 }
 
-func printEvent(ctx context.Context, event budevents.Event) error {
-	fmt.Printf("[%s] [%s] %s %s\n", event.OccurredAt.Format(time.RFC3339), event.EventID, event.EventName, string(event.Payload))
+func printEvents(ctx context.Context, events ...budevents.Event) error {
+	for _, event := range events {
+		fmt.Printf("[%s] [%s] %s %s\n", event.OccurredAt.Format(time.RFC3339), event.EventID, event.EventName, string(event.Payload))
+	}
 	return ctx.Err()
 }
 

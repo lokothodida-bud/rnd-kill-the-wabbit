@@ -13,11 +13,11 @@ import (
 
 type Consumer struct {
 	listeners []Listener
-	callback  func(ctx context.Context, event Event) error
+	callback  func(ctx context.Context, events ...Event) error
 }
 
 func NewConsumer(
-	callback func(ctx context.Context, event Event) error,
+	callback func(ctx context.Context, events ...Event) error,
 	listeners ...Listener,
 ) Consumer {
 	return Consumer{
@@ -57,14 +57,12 @@ func (consumer Consumer) consumeEvents(ctx context.Context, conf Listener) error
 			return err
 		}
 
-		for i, event := range events {
-			if err := consumer.callback(ctx, event); err != nil {
-				return err
-			}
+		if err := consumer.callback(ctx, events...); err != nil {
+			return err
+		}
 
-			if i == len(events)-1 {
-				lastEventID = event.EventID
-			}
+		if len(events) > 0 {
+			lastEventID = events[len(events)-1].EventID
 		}
 	}
 
