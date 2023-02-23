@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"sync"
 	"time"
 )
@@ -69,6 +70,11 @@ func (apps *getApplicationsResponder) render(w http.ResponseWriter) {
 	for _, a := range apps.applications {
 		allApps = append(allApps, a)
 	}
+
+	sort.Slice(allApps, func(i, j int) bool {
+		return allApps[i].SubmittedAt > allApps[j].SubmittedAt
+	})
+
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"data": allApps,
