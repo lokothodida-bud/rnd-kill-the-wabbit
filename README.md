@@ -75,10 +75,18 @@ store, as an alternative to using RabbitMQ for consuming events between services
      - A deadletter queue for a specific client's messages that have failed?
 5. In practice, how would this look?
 
-# Massive benefit discovered
-It is easy to build up "view model" joiner services to cache information that joins
-across service boundaries - makes for microservices that have very little infrastructure
-to care about, and which store a small subset of information
+# Benefits discovered
+- It is easy to build up "view model" joiner services to cache information that joins
+  across service boundaries - makes for microservices that have very little infrastructure
+  to care about, and which store a small subset of information
+- Replaying events can be done for free; as long as you know where you are in the stream, you can follow it
+- Refactoring steps are straightforward:
+  - Instead of publishing to RabbitMQ, persist your events in whichever server you'd like
+    - Sidecar provides an example one that can be used out-of-the-box with HTTP
+  - Services that consume the events poll your well-known/latest event endpoint and follow its
+    links until they reach the last event they previously saw, and then process the payloads seen
+- What about private event streams? (e.g. Rhino <-> Ryan)
+  - Simply have another wellknown endpoint corresponding to that particular stream and encrypt the payloads
 
 # Investigation links
 - YOW! 2011 Jim Webber - Domain-Driven Design for RESTful Systems: https://www.youtube.com/watch?v=aQVSzMV8DWc
