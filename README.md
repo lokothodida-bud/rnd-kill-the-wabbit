@@ -1,14 +1,8 @@
 # R&D Q1 2023: "Kill the Wabbit"
-
 ![Shhh...be vewwy vewwy quiet...](/images/elmer-fudd.jpg)
-R&amp;D Q1 2023 Project: provide an API spec (and possible integration sidecar and example) for a polling-based event
-store, as an alternative to using RabbitMQ for consuming events between services
 
-# Investigation links
-- YOW! 2011 Jim Webber - Domain-Driven Design for RESTful Systems: https://www.youtube.com/watch?v=aQVSzMV8DWc
-- https://sookocheff.com/post/api/on-choosing-a-hypermedia-format/
-- https://devblast.com/r/master-ruby-web-apis/exploring-more-hypermedia-formats
-- Oktane17: Designing Beautiful REST + JSON APIs - https://www.youtube.com/watch?v=MiOSzpfP1Ww
+> **R&D Q1 2023 Project**: provide an API spec (and possible integration sidecar and example) for a polling-based event
+store, as an alternative to using RabbitMQ for consuming events between services
 
 # RabbitMQ
 ![](/images/services-with-rabbit.png)
@@ -71,3 +65,9 @@ store, as an alternative to using RabbitMQ for consuming events between services
 
 # How do I consume events from the stream?
 - [x] [Code an example of doing so](/examples/consuming_events_from_stream.go)
+
+# Investigation links
+- YOW! 2011 Jim Webber - Domain-Driven Design for RESTful Systems: https://www.youtube.com/watch?v=aQVSzMV8DWc
+- https://sookocheff.com/post/api/on-choosing-a-hypermedia-format/
+- https://devblast.com/r/master-ruby-web-apis/exploring-more-hypermedia-formats
+- Oktane17: Designing Beautiful REST + JSON APIs - https://www.youtube.com/watch?v=MiOSzpfP1Ww
