@@ -17,6 +17,7 @@ import (
 func main() {
 	eventServerURL := flag.String("server-url", "http://localhost:8080/events", "origin server to poll for events")
 	tickerTimeString := flag.String("ticker", "3s", "time.Duration string on time between ticks, e.g. 5s")
+	lastEventIDFlag := flag.String("last-event-id", "", "last ID of the event stream to start from")
 
 	flag.Parse()
 
@@ -28,7 +29,7 @@ func main() {
 
 	log.Printf("polling event server [%s]\n", *eventServerURL)
 
-	var lastEventID string
+	lastEventID := *lastEventIDFlag
 
 	for range time.Tick(duration) {
 		events, err := findLatestEvents(*eventServerURL, lastEventID)
