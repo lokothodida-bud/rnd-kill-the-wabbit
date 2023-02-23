@@ -144,6 +144,7 @@ func (apps *getApplicationsResponder) customerRequestedDataRemoval(event budeven
 	for appID, app := range apps.applications {
 		if app.CustomerID == payload.CustomerID {
 			app.CustomerID = "-"
+			app.Status = "data_removed"
 			apps.applications[appID] = app
 			return nil
 		}
