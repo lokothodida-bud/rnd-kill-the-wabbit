@@ -18,7 +18,7 @@ import (
 // Illustrates how to build a view-layer service purely out of listening to the
 // event stream that is offered by the relevant service(s)
 func main() {
-	configFilename := flag.String("config-file", "./stream_config.dist.json", "JSON config file for consumers")
+	configFilename := flag.String("config-file", "./config.dist.json", "JSON config file for consumers")
 	port := flag.String("port", "8081", "HTTP port for server")
 
 	flag.Parse()
