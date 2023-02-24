@@ -1,0 +1,6 @@
+[
+  {
+    "base_url": "http://localhost:9000",
+    "well_known_path": "/v1/events"
+  }
+]

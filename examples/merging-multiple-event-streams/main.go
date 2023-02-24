@@ -10,30 +10,20 @@ import (
 	"github.com/thisisbud/backend-events-sidecar/pkg/budevents"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
 )
 
 func main() {
-	// first attempt
-	// from the root/entrypoint on all streams:
-	// peek the head
-	// find latest event of the items polled
-	// generate an ID that encapsulates the cursors
-	// point to that element
-
 	port := flag.String("port", "8081", "HTTP port to run server")
+	confFilename := flag.String("config-file", "config.json", "filename of config file to log from")
 	flag.Parse()
 
-	streams := []Stream{
-		{
-			BaseURL:       "http://localhost:9002",
-			WellKnownPath: "/v1/events",
-		},
-		{
-			BaseURL:       "http://localhost:9003",
-			WellKnownPath: "/v1/events",
-		},
+	streams, err := loadStreamConfig(*confFilename)
+
+	if err != nil {
+		log.Panic(err)
 	}
 
 	r := chi.NewRouter()
@@ -76,6 +66,22 @@ func main() {
 type Stream struct {
 	BaseURL       string `json:"base_url"`
 	WellKnownPath string `json:"well_known_path"`
+}
+
+func loadStreamConfig(filename string) ([]Stream, error) {
+	blob, err := os.ReadFile(filename)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var streams []Stream
+
+	if err := json.Unmarshal(blob, &streams); err != nil {
+		return nil, err
+	}
+
+	return streams, nil
 }
 
 func getEvent(fullURL string) (*budevents.Response, error) {
