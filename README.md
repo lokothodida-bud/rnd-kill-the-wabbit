@@ -54,6 +54,10 @@ store, as an alternative to using RabbitMQ for consuming events between services
       "href": "/events",
       "type": "GET"
     },
+    "self": {
+      "href": "/events/9d536fb6-638e-4dcb-a2b7-ccef37949765",
+      "type": "GET"
+    },
     "next": {
       "href": "/events/ebb2ae28-10be-4f7a-bac4-796e28e25d85",
       "type": "GET"
@@ -93,3 +97,24 @@ store, as an alternative to using RabbitMQ for consuming events between services
 - https://sookocheff.com/post/api/on-choosing-a-hypermedia-format/
 - https://devblast.com/r/master-ruby-web-apis/exploring-more-hypermedia-formats
 - Oktane17: Designing Beautiful REST + JSON APIs - https://www.youtube.com/watch?v=MiOSzpfP1Ww
+
+# Presentation Ideas
+1. What problem are you solving? Who for?
+    - Infrastructural issues with maintaining RabbitMQ - cause of many incidents and platform instability
+    - Complexities with integration create hidden bugs (e.g. how to process failed messages)
+2. What are the benefits for consumers, Bud employees/clients/partners
+    - Consumers/clients/partners: more stable platform (reduced likelihood of us failing to send webhooks for example)
+    - Bud employees: easier integration, using tech we already understand (HTTP and whatever DB technology we choose)
+      - Unified schema also makes it possible to consume from multiple event streams easily
+      - Can replay events from existing streams in new services
+      - Easier to build caches/viewmodels using persistent events
+3. Technical and/or commercial viability
+    - Relatively straightforward to build
+    - Polling is cheap - we can also cache the results because the event linked list is immutable
+    - For situations where external clients still require webhooks, we can still implement webhooks externally
+      (so it is a backwards-compatible feature to implement)
+4. Demo and/or findings
+    - Show schema + example applications
+5. Next steps
+    - Implement SQL storage driver for sidecar
+    - Pick a service to help decouple from RabbitMQ and test that this integration works
