@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/google/uuid"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/thisisbud/backend-events-sidecar/internal/handlers"
@@ -19,6 +20,7 @@ func main() {
 	flag.Parse()
 
 	r := chi.NewRouter()
+	r.Use(cors.AllowAll().Handler)
 	r.Get("/", handlers.Wellknown)
 	r.Get("/v1/events", handlers.GetLatestEvent(repo.GetLatestEvent))
 	r.Get("/v1/events/{event_id}", handlers.GetEvent(repo.GetEvent))
