@@ -127,6 +127,10 @@ func renderEvents(w http.ResponseWriter, events []budevents.Event, baseURL strin
 
 	if len(events) > 0 {
 		resp.Data = events[0]
+		resp.Metadata["self"] = budevents.Reference{
+			Href: fmt.Sprintf("/events/%s", events[0].EventID),
+			Type: http.MethodGet,
+		}
 	}
 
 	if len(events) > 1 {

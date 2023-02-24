@@ -39,10 +39,19 @@ func (repo *eventRepository) GetLatestEvent(
 	}
 
 	if len(repo.events) == 1 {
-		return &repo.events[0], nil, nil
+		return &repo.events[0], map[string]budevents.Reference{
+			"self": {
+				Href: "/v1/events/" + repo.events[0].EventID,
+				Type: http.MethodGet,
+			},
+		}, nil
 	}
 
 	return &repo.events[0], map[string]budevents.Reference{
+		"self": {
+			Href: "/v1/events/" + repo.events[0].EventID,
+			Type: http.MethodGet,
+		},
 		"next": {
 			Href: "/v1/events/" + repo.events[1].EventID,
 			Type: http.MethodGet,
@@ -61,6 +70,11 @@ func (repo *eventRepository) GetEvent(
 
 	for i, e := range repo.events {
 		if e.EventID == eventID {
+			refs["self"] = budevents.Reference{
+				Href: "/v1/events/" + e.EventID,
+				Type: http.MethodGet,
+			}
+
 			if i < len(repo.events)-1 {
 				refs["next"] = budevents.Reference{
 					Href: "/v1/events/" + repo.events[i+1].EventID,
