@@ -9,4 +9,6 @@ require (
 	golang.org/x/sync v0.1.0
 )
 
+require github.com/go-chi/cors v1.2.1 // indirect
+
 replace github.com/thisisbud/backend-events-sidecar => ./sidecar

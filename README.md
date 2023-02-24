@@ -105,6 +105,7 @@ store, as an alternative to using RabbitMQ for consuming events between services
 2. What are the benefits for consumers, Bud employees/clients/partners
     - Consumers/clients/partners: more stable platform (reduced likelihood of us failing to send webhooks for example)
     - Bud employees: easier integration, using tech we already understand (HTTP and whatever DB technology we choose)
+      - No more issues with queues filling up w/ messages when there are no consumers
       - Unified schema also makes it possible to consume from multiple event streams easily
       - Can replay events from existing streams in new services
       - Easier to build caches/viewmodels using persistent events
@@ -115,6 +116,8 @@ store, as an alternative to using RabbitMQ for consuming events between services
       (so it is a backwards-compatible feature to implement)
 4. Demo and/or findings
     - Show schema + example applications
+    - Clients may not want to implement against the event stream, but given that we can still turn a stream into webhooks, we can
+      still use this internally without compatibility issues
 5. Next steps
     - Implement SQL storage driver for sidecar
     - Pick a service to help decouple from RabbitMQ and test that this integration works

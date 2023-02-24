@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <title>Event Stream Browser</title>
+        <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    </head>
+    <body>
+        <div id="app">
+            <h1>Event Stream Browser</h1>
+            <form>
+                <p><label>Base URL</label><input v-model="baseURL"></p>
+                <p><label>Well known path</label><input v-model="wellKnownPath"></p>
+                <p><label>Current URL</label><input disabled v-model="currentURL"></p>
+                <p>
+                    <button v-on:click.prevent="load(wellKnownPath)">Start</button>
+                    <button v-if="response.metadata.latest" v-on:click.prevent="load(response.metadata.latest.href)">Latest</button>
+                    <button v-if="response.metadata.next" v-on:click.prevent="load(response.metadata.next.href)">Next</button>
+                </p>
+                <pre><code>{{JSON.stringify(response, null, 4)}}</code></pre>
+            </form>
+        </div>
+        <script>
+            Vue.createApp({
+              data() {
+                return {
+                  baseURL: 'http://localhost:9000',
+                  wellKnownPath: '/events',
+                  currentURL: '',
+                  message: 'Hello vue',
+                  response: {
+                    data: {},
+                    metadata: {},
+                  },
+                }
+              },
+              methods: {
+                async load(path) {
+                  const resp = await fetch(this.baseURL + path)
+                  this.response = await resp.json()
+                  this.currentURL = this.baseURL + path
+                },
+              },
+              computed: {
+              }
+            }).mount('#app')
+        </script>
+    </body>
+</html>
